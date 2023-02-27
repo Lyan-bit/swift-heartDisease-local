@@ -192,7 +192,7 @@ class ModelFacade : ObservableObject {
           input5: Float(heartDisease.fbs),
           input6: Float((heartDisease.restecg - 0) / (2 - 0)),
           input7: Float((heartDisease.thalach - 71) / (202 - 71)),
-          input8: Float((heartDisease.exang)),
+          input8: Float(heartDisease.exang),
           input9: Float((heartDisease.oldpeak - 0) / (6.2 - 0)),
           input10: Float((heartDisease.slope - 0) / (2 - 0)),
           input11: Float((heartDisease.ca - 0) / (4 - 0)),
