@@ -185,11 +185,11 @@ class ModelFacade : ObservableObject {
         
         guard let result = self.modelParser?.runModel(
           input0: Float((heartDisease.age - 29) / (77 - 29)),
-          input1: Float((heartDisease.sex)),
+          input1: Float(heartDisease.sex),
           input2: Float((heartDisease.cp - 0) / (3 - 0)),
           input3: Float((heartDisease.trestbps - 94) / (200 - 94)),
           input4: Float((heartDisease.chol - 126) / (564 - 126)),
-          input5: Float((heartDisease.fbs)),
+          input5: Float(heartDisease.fbs),
           input6: Float((heartDisease.restecg - 0) / (2 - 0)),
           input7: Float((heartDisease.thalach - 71) / (202 - 71)),
           input8: Float((heartDisease.exang)),
