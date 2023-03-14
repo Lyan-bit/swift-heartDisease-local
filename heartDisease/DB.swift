@@ -5,15 +5,15 @@ import SQLite3
 
 class DB {
   let dbPointer : OpaquePointer?
-  static let dbNAME = "heartdiseaseApp.db"
-  static let dbVERSION = 1
+  static let dbName = "heartdiseaseApp.db"
+  static let dbVersion = 1
 
-  static let heartDiseaseTABLENAME = "HeartDisease"
+  static let heartDiseaseTableName = "HeartDisease"
   static let heartDiseaseID = 0
-  static let heartDiseaseCOLS : [String] = ["TableId", "id", "age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", "thalach", "exang", "oldpeak", "slope", "ca", "thal", "outcome"]
-  static let heartDiseaseNUMBERCOLS = 0
+  static let heartDiseaseCols : [String] = ["TableId", "id", "age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", "thalach", "exang", "oldpeak", "slope", "ca", "thal", "outcome"]
+  static let heartDiseaseNumberCols = 0
 
-  static let heartDiseaseCREATESCHEMA =
+  static let heartDiseaseCreateSchema =
     "create table HeartDisease (TableId integer primary key autoincrement" + 
         ", id VARCHAR(50) not null"  +
         ", age integer not null"  +
@@ -38,7 +38,7 @@ class DB {
   func createDatabase() throws
   { do 
     { 
-    try createTable(table: DB.heartDiseaseCREATESCHEMA)
+    try createTable(table: DB.heartDiseaseCreateSchema)
       print("Created database")
     }
     catch { print("Errors: " + errorMessage) }
@@ -130,87 +130,14 @@ class DB {
   }
 
   func listHeartDisease() -> [HeartDiseaseVO]
-  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-    let statement = "SELECT * FROM HeartDisease "
-    let queryStatement = try? prepareStatement(sql: statement)
-    if queryStatement == nil { 
-    	return res
-    }
-    
-    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-    { //let id = sqlite3_column_int(queryStatement, 0)
-      let heartDiseasevo = HeartDiseaseVO()
-      
-    guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1) 
-    else { return res } 
-    let id = String(cString: queryResultHeartDiseaseCOLID) 
-    heartDiseasevo.setId(x: id) 
-
-    let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2) 
-    let age = Int(queryResultHeartDiseaseCOLAGE) 
-    heartDiseasevo.setAge(x: age) 
-
-    let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3) 
-    let sex = Int(queryResultHeartDiseaseCOLSEX) 
-    heartDiseasevo.setSex(x: sex) 
-
-    let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4) 
-    let cp = Int(queryResultHeartDiseaseCOLCP) 
-    heartDiseasevo.setCp(x: cp) 
-
-    let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5) 
-    let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS) 
-    heartDiseasevo.setTrestbps(x: trestbps) 
-
-    let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6) 
-    let chol = Int(queryResultHeartDiseaseCOLCHOL) 
-    heartDiseasevo.setChol(x: chol) 
-
-    let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7) 
-    let fbs = Int(queryResultHeartDiseaseCOLFBS) 
-    heartDiseasevo.setFbs(x: fbs) 
-
-    let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8) 
-    let restecg = Int(queryResultHeartDiseaseCOLRESTECG) 
-    heartDiseasevo.setRestecg(x: restecg) 
-
-    let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9) 
-    let thalach = Int(queryResultHeartDiseaseCOLTHALACH) 
-    heartDiseasevo.setThalach(x: thalach) 
-
-    let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10) 
-    let exang = Int(queryResultHeartDiseaseCOLEXANG) 
-    heartDiseasevo.setExang(x: exang) 
-
-    let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11) 
-    let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK) 
-    heartDiseasevo.setOldpeak(x: oldpeak) 
-
-    let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12) 
-    let slope = Int(queryResultHeartDiseaseCOLSLOPE) 
-    heartDiseasevo.setSlope(x: slope) 
-
-    let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13) 
-    let ca = Int(queryResultHeartDiseaseCOLCA) 
-    heartDiseasevo.setCa(x: ca) 
-
-    let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14) 
-    let thal = Int(queryResultHeartDiseaseCOLTHAL) 
-    heartDiseasevo.setThal(x: thal) 
-
-    guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15) 
-    else { return res } 
-    let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME) 
-    heartDiseasevo.setOutcome(x: outcome) 
-
-      res.append(heartDiseasevo)
-    }
-    sqlite3_finalize(queryStatement)
-    return res
+  { 
+  	let statement = "SELECT * FROM HeartDisease "
+  	return setDataHeartDisease(statement: statement)
   }
 
   func createHeartDisease(heartDiseasevo : HeartDiseaseVO) throws
   { let insertSQL : String = "INSERT INTO HeartDisease (id, age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, outcome) VALUES (" 
+
      + "'" + heartDiseasevo.getId() + "'" + "," 
      + String(heartDiseasevo.getAge()) + "," 
      + String(heartDiseasevo.getSex()) + "," 
@@ -235,948 +162,93 @@ class DB {
   }
 
   func searchByHeartDiseaseid(val : String) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE id = " + "'" + val + "'" 
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE id = " + "'" + val + "'" 
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseaseage(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE age = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE age = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseasesex(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE sex = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE sex = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseasecp(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE cp = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE cp = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseasetrestbps(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE trestbps = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE trestbps = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseasechol(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE chol = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE chol = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseasefbs(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE fbs = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE fbs = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseaserestecg(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE restecg = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE restecg = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseasethalach(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE thalach = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE thalach = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseaseexang(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE exang = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE exang = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseaseoldpeak(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE oldpeak = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE oldpeak = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseaseslope(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE slope = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE slope = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseaseca(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE ca = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE ca = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseasethal(val : Int) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE thal = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE thal = " + String( val )
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
   func searchByHeartDiseaseoutcome(val : String) -> [HeartDiseaseVO]
-	  { var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
-	    let statement : String = "SELECT * FROM HeartDisease WHERE outcome = " + "'" + val + "'" 
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let heartDiseasevo = HeartDiseaseVO()
-	      
-	      guard let queryResultHeartDiseaseCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultHeartDiseaseCOLID)
-		      heartDiseasevo.setId(x: id)
-	      let queryResultHeartDiseaseCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultHeartDiseaseCOLAGE)
-		      heartDiseasevo.setAge(x: age)
-	      let queryResultHeartDiseaseCOLSEX = sqlite3_column_int(queryStatement, 3)
-		      let sex = Int(queryResultHeartDiseaseCOLSEX)
-		      heartDiseasevo.setSex(x: sex)
-	      let queryResultHeartDiseaseCOLCP = sqlite3_column_int(queryStatement, 4)
-		      let cp = Int(queryResultHeartDiseaseCOLCP)
-		      heartDiseasevo.setCp(x: cp)
-	      let queryResultHeartDiseaseCOLTRESTBPS = sqlite3_column_int(queryStatement, 5)
-		      let trestbps = Int(queryResultHeartDiseaseCOLTRESTBPS)
-		      heartDiseasevo.setTrestbps(x: trestbps)
-	      let queryResultHeartDiseaseCOLCHOL = sqlite3_column_int(queryStatement, 6)
-		      let chol = Int(queryResultHeartDiseaseCOLCHOL)
-		      heartDiseasevo.setChol(x: chol)
-	      let queryResultHeartDiseaseCOLFBS = sqlite3_column_int(queryStatement, 7)
-		      let fbs = Int(queryResultHeartDiseaseCOLFBS)
-		      heartDiseasevo.setFbs(x: fbs)
-	      let queryResultHeartDiseaseCOLRESTECG = sqlite3_column_int(queryStatement, 8)
-		      let restecg = Int(queryResultHeartDiseaseCOLRESTECG)
-		      heartDiseasevo.setRestecg(x: restecg)
-	      let queryResultHeartDiseaseCOLTHALACH = sqlite3_column_int(queryStatement, 9)
-		      let thalach = Int(queryResultHeartDiseaseCOLTHALACH)
-		      heartDiseasevo.setThalach(x: thalach)
-	      let queryResultHeartDiseaseCOLEXANG = sqlite3_column_int(queryStatement, 10)
-		      let exang = Int(queryResultHeartDiseaseCOLEXANG)
-		      heartDiseasevo.setExang(x: exang)
-	      let queryResultHeartDiseaseCOLOLDPEAK = sqlite3_column_int(queryStatement, 11)
-		      let oldpeak = Int(queryResultHeartDiseaseCOLOLDPEAK)
-		      heartDiseasevo.setOldpeak(x: oldpeak)
-	      let queryResultHeartDiseaseCOLSLOPE = sqlite3_column_int(queryStatement, 12)
-		      let slope = Int(queryResultHeartDiseaseCOLSLOPE)
-		      heartDiseasevo.setSlope(x: slope)
-	      let queryResultHeartDiseaseCOLCA = sqlite3_column_int(queryStatement, 13)
-		      let ca = Int(queryResultHeartDiseaseCOLCA)
-		      heartDiseasevo.setCa(x: ca)
-	      let queryResultHeartDiseaseCOLTHAL = sqlite3_column_int(queryStatement, 14)
-		      let thal = Int(queryResultHeartDiseaseCOLTHAL)
-		      heartDiseasevo.setThal(x: thal)
-	      guard let queryResultHeartDiseaseCOLOUTCOME = sqlite3_column_text(queryStatement, 15)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultHeartDiseaseCOLOUTCOME)
-		      heartDiseasevo.setOutcome(x: outcome)
-
-	      res.append(heartDiseasevo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
+	  { 
+	  	let statement : String = "SELECT * FROM HeartDisease WHERE outcome = " + "'" + val + "'" 
+	  	return setDataHeartDisease(statement: statement)
 	  }
 	  
 
@@ -1184,31 +256,31 @@ class DB {
   { var updateStatement: OpaquePointer?
     let statement : String = "UPDATE HeartDisease SET " 
     + " age = " + String(heartDiseasevo.getAge()) 
- + "," 
+    + "," 
     + " sex = " + String(heartDiseasevo.getSex()) 
- + "," 
+    + "," 
     + " cp = " + String(heartDiseasevo.getCp()) 
- + "," 
+    + "," 
     + " trestbps = " + String(heartDiseasevo.getTrestbps()) 
- + "," 
+    + "," 
     + " chol = " + String(heartDiseasevo.getChol()) 
- + "," 
+    + "," 
     + " fbs = " + String(heartDiseasevo.getFbs()) 
- + "," 
+    + "," 
     + " restecg = " + String(heartDiseasevo.getRestecg()) 
- + "," 
+    + "," 
     + " thalach = " + String(heartDiseasevo.getThalach()) 
- + "," 
+    + "," 
     + " exang = " + String(heartDiseasevo.getExang()) 
- + "," 
+    + "," 
     + " oldpeak = " + String(heartDiseasevo.getOldpeak()) 
- + "," 
+    + "," 
     + " slope = " + String(heartDiseasevo.getSlope()) 
- + "," 
+    + "," 
     + " ca = " + String(heartDiseasevo.getCa()) 
- + "," 
+    + "," 
     + " thal = " + String(heartDiseasevo.getThal()) 
- + "," 
+    + "," 
     + " outcome = '"+heartDiseasevo.getOutcome() + "'" 
     + " WHERE id = '" + heartDiseasevo.getId() + "'" 
 
@@ -1230,5 +302,67 @@ class DB {
   deinit
   { sqlite3_close(self.dbPointer) }
 
+  func setDataHeartDisease(statement: String) -> [HeartDiseaseVO] {
+          var res : [HeartDiseaseVO] = [HeartDiseaseVO]()
+          let queryStatement = try? prepareStatement(sql: statement)
+          
+          while (sqlite3_step(queryStatement) == SQLITE_ROW)
+          { 
+            let heartDiseasevo = HeartDiseaseVO()
+            
+	      guard let queryResultHeartDiseaseColId = sqlite3_column_text(queryStatement, 1)
+			      else { return res }	      
+			      let id = String(cString: queryResultHeartDiseaseColId)
+			      heartDiseasevo.setId(x: id)
+	      let queryResultHeartDiseaseColAge = sqlite3_column_int(queryStatement, 2)
+			      let age = Int(queryResultHeartDiseaseColAge)
+			      heartDiseasevo.setAge(x: age)
+	      let queryResultHeartDiseaseColSex = sqlite3_column_int(queryStatement, 3)
+			      let sex = Int(queryResultHeartDiseaseColSex)
+			      heartDiseasevo.setSex(x: sex)
+	      let queryResultHeartDiseaseColCp = sqlite3_column_int(queryStatement, 4)
+			      let cp = Int(queryResultHeartDiseaseColCp)
+			      heartDiseasevo.setCp(x: cp)
+	      let queryResultHeartDiseaseColTrestbps = sqlite3_column_int(queryStatement, 5)
+			      let trestbps = Int(queryResultHeartDiseaseColTrestbps)
+			      heartDiseasevo.setTrestbps(x: trestbps)
+	      let queryResultHeartDiseaseColChol = sqlite3_column_int(queryStatement, 6)
+			      let chol = Int(queryResultHeartDiseaseColChol)
+			      heartDiseasevo.setChol(x: chol)
+	      let queryResultHeartDiseaseColFbs = sqlite3_column_int(queryStatement, 7)
+			      let fbs = Int(queryResultHeartDiseaseColFbs)
+			      heartDiseasevo.setFbs(x: fbs)
+	      let queryResultHeartDiseaseColRestecg = sqlite3_column_int(queryStatement, 8)
+			      let restecg = Int(queryResultHeartDiseaseColRestecg)
+			      heartDiseasevo.setRestecg(x: restecg)
+	      let queryResultHeartDiseaseColThalach = sqlite3_column_int(queryStatement, 9)
+			      let thalach = Int(queryResultHeartDiseaseColThalach)
+			      heartDiseasevo.setThalach(x: thalach)
+	      let queryResultHeartDiseaseColExang = sqlite3_column_int(queryStatement, 10)
+			      let exang = Int(queryResultHeartDiseaseColExang)
+			      heartDiseasevo.setExang(x: exang)
+	      let queryResultHeartDiseaseColOldpeak = sqlite3_column_int(queryStatement, 11)
+			      let oldpeak = Int(queryResultHeartDiseaseColOldpeak)
+			      heartDiseasevo.setOldpeak(x: oldpeak)
+	      let queryResultHeartDiseaseColSlope = sqlite3_column_int(queryStatement, 12)
+			      let slope = Int(queryResultHeartDiseaseColSlope)
+			      heartDiseasevo.setSlope(x: slope)
+	      let queryResultHeartDiseaseColCa = sqlite3_column_int(queryStatement, 13)
+			      let ca = Int(queryResultHeartDiseaseColCa)
+			      heartDiseasevo.setCa(x: ca)
+	      let queryResultHeartDiseaseColThal = sqlite3_column_int(queryStatement, 14)
+			      let thal = Int(queryResultHeartDiseaseColThal)
+			      heartDiseasevo.setThal(x: thal)
+	      guard let queryResultHeartDiseaseColOutcome = sqlite3_column_text(queryStatement, 15)
+			      else { return res }	      
+			      let outcome = String(cString: queryResultHeartDiseaseColOutcome)
+			      heartDiseasevo.setOutcome(x: outcome)
+  
+            res.append(heartDiseasevo)
+          }
+          sqlite3_finalize(queryStatement)
+          return res
+      }
+      
 }
 
